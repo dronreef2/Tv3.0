@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TV 3.0 - Enquete Interativa</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="title">📺 TV 3.0 - Enquete Interativa</h1>
+        </header>
+        
+        <main class="main-content">
+            <div class="poll-section">
+                <h2 class="question" id="question">Carregando pergunta...</h2>
+                
+                <div class="options-container" id="options-container">
+                    <!-- Opções serão carregadas dinamicamente -->
+                </div>
+                
+                <div class="instructions">
+                    <p>🎮 Use as setas ⬆️ ⬇️ para navegar</p>
+                    <p>🔥 Pressione ENTER ou ESPAÇO para votar</p>
+                </div>
+            </div>
+            
+            <div class="results-section">
+                <h3 class="results-title">Resultados em Tempo Real</h3>
+                <div class="results-container" id="results-container">
+                    <!-- Resultados serão carregados dinamicamente -->
+                </div>
+                
+                <div class="total-votes" id="total-votes">
+                    Total de votos: 0
+                </div>
+            </div>
+        </main>
+        
+        <div class="status-bar">
+            <div class="status-indicator" id="status-indicator">
+                <span class="status-text">🔄 Conectando...</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de confirmação de voto -->
+    <div class="modal" id="vote-modal">
+        <div class="modal-content">
+            <h3>✅ Voto Confirmado!</h3>
+            <p id="vote-message">Seu voto foi registrado com sucesso.</p>
+            <button class="modal-button" onclick="closeModal()">OK</button>
+        </div>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
