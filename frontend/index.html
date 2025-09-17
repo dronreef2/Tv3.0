@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <title>Enquete Interativa TV 3.0</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="container">
+      <header class="header">
+        <h1>Enquete Interativa</h1>
+        <p class="subtitle">Use as setas do teclado para navegar e Enter para votar</p>
+      </header>
+
+      <section class="poll">
+        <h2 id="pergunta">Quem vai ganhar o jogo?</h2>
+        <ul id="opcoes" class="opcoes" role="listbox" aria-label="Opções de voto"></ul>
+        <div id="status" class="status" aria-live="polite"></div>
+      </section>
+
+      <section class="results">
+        <h3>Resultados</h3>
+        <div id="grafico" class="grafico"></div>
+        <div id="totais" class="totais"></div>
+      </section>
+
+      <footer class="footer">
+        <p>Dica: adicione ?api=https://sua-url.ngrok.app para apontar o backend.</p>
+      </footer>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

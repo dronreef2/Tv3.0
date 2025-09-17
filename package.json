@@ -1,0 +1,22 @@
+{
+  "name": "tv-enquete",
+  "version": "1.0.0",
+  "description": "Protótipo de app interativo para TV 3.0 com enquetes em tempo real",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js"
+  },
+  "keywords": [
+    "tv3.0",
+    "enquete",
+    "express",
+    "frontend",
+    "web"
+  ],
+  "author": "dronreef2",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  }
+}
