@@ -1,0 +1,31 @@
+{
+  "pergunta": "Qual é o seu programa favorito na TV?",
+  "opcoes": [
+    {
+      "id": 1,
+      "texto": "Documentários",
+      "votos": 3
+    },
+    {
+      "id": 2,
+      "texto": "Filmes de Ação",
+      "votos": 2
+    },
+    {
+      "id": 3,
+      "texto": "Séries de Drama",
+      "votos": 0
+    },
+    {
+      "id": 4,
+      "texto": "Programas de Culinária",
+      "votos": 0
+    },
+    {
+      "id": 5,
+      "texto": "Esportes",
+      "votos": 0
+    }
+  ],
+  "totalVotos": 5
+}
