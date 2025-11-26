@@ -244,11 +244,54 @@ class TV3App {
     }
 
     showError(message) {
-        alert('Erro: ' + message);
+        this.showModal('Erro', message, 'error');
     }
 
     showMessage(message) {
-        alert(message);
+        this.showModal('Aviso', message, 'info');
+    }
+
+    showModal(title, message, type = 'info') {
+        // Create modal if it doesn't exist
+        let modal = document.getElementById('custom-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'custom-modal';
+            modal.className = 'custom-modal hidden';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <h3 id="modal-title"></h3>
+                    <p id="modal-message"></p>
+                    <button id="modal-close">OK</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            // Add event listener for close button
+            document.getElementById('modal-close').addEventListener('click', () => {
+                modal.classList.add('hidden');
+            });
+            
+            // Close on Enter key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !modal.classList.contains('hidden')) {
+                    modal.classList.add('hidden');
+                }
+            });
+        }
+        
+        // Update modal content
+        document.getElementById('modal-title').textContent = title;
+        document.getElementById('modal-message').textContent = message;
+        
+        // Set modal type for styling
+        modal.className = `custom-modal ${type}`;
+        modal.classList.remove('hidden');
+        
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 5000);
     }
 }
 

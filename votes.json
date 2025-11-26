@@ -4,12 +4,12 @@
     {
       "id": 1,
       "text": "Jogos interativos",
-      "votes": 1
+      "votes": 0
     },
     {
       "id": 2,
       "text": "Enquetes em tempo real",
-      "votes": 1
+      "votes": 0
     },
     {
       "id": 3,
@@ -22,5 +22,5 @@
       "votes": 0
     }
   ],
-  "totalVotes": 2
+  "totalVotes": 0
 }

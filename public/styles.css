@@ -363,3 +363,66 @@ body {
 .result-item.updated {
     animation: newVote 0.5s ease;
 }
+
+/* Custom Modal */
+.custom-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(30, 60, 114, 0.95);
+    padding: 30px 50px;
+    border-radius: 15px;
+    text-align: center;
+    z-index: 1001;
+    transition: all 0.3s ease;
+    border: 3px solid #ffdd44;
+    min-width: 300px;
+}
+
+.custom-modal.hidden {
+    opacity: 0;
+    visibility: hidden;
+    transform: translate(-50%, -50%) scale(0.8);
+}
+
+.custom-modal.error {
+    border-color: #ff4444;
+}
+
+.custom-modal.error h3 {
+    color: #ff4444;
+}
+
+.custom-modal.info {
+    border-color: #ffdd44;
+}
+
+.custom-modal h3 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    color: #ffdd44;
+}
+
+.custom-modal p {
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+}
+
+.custom-modal button {
+    background: #ffdd44;
+    color: #1e3c72;
+    border: none;
+    padding: 10px 30px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.custom-modal button:hover,
+.custom-modal button:focus {
+    background: #fff;
+    transform: scale(1.05);
+}
