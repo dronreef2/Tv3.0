@@ -4,7 +4,7 @@
     {
       "id": 1,
       "texto": "Documentários",
-      "votos": 2
+      "votos": 3
     },
     {
       "id": 2,
@@ -27,5 +27,5 @@
       "votos": 0
     }
   ],
-  "totalVotos": 4
+  "totalVotos": 5
 }
