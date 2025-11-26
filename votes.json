@@ -1,0 +1,26 @@
+{
+  "question": "Qual é sua opção favorita para programação de TV interativa?",
+  "options": [
+    {
+      "id": 1,
+      "text": "Jogos interativos",
+      "votes": 1
+    },
+    {
+      "id": 2,
+      "text": "Enquetes em tempo real",
+      "votes": 1
+    },
+    {
+      "id": 3,
+      "text": "Compras durante o programa",
+      "votes": 0
+    },
+    {
+      "id": 4,
+      "text": "Escolha de ângulos de câmera",
+      "votes": 0
+    }
+  ],
+  "totalVotes": 2
+}
