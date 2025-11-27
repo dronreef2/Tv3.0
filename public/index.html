@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TV 3.0 - Aplicativo Interativo</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="tv-container">
+        <header class="tv-header">
+            <h1>📺 TV 3.0 Interativa</h1>
+            <div class="status-indicator">
+                <span class="status-dot"></span>
+                AO VIVO
+            </div>
+        </header>
+
+        <main class="tv-main">
+            <div class="question-section">
+                <h2 id="question-text">Carregando pergunta...</h2>
+            </div>
+
+            <div class="options-section">
+                <div id="options-container">
+                    <!-- Options will be loaded dynamically -->
+                </div>
+            </div>
+
+            <div class="results-section">
+                <h3>Resultados em Tempo Real</h3>
+                <div id="results-container">
+                    <!-- Results will be loaded dynamically -->
+                </div>
+                <div class="total-votes">
+                    Total de votos: <span id="total-votes">0</span>
+                </div>
+            </div>
+        </main>
+
+        <footer class="tv-footer">
+            <div class="remote-instructions">
+                <div class="remote-control">
+                    <div class="remote-buttons">
+                        <div class="arrow-buttons">
+                            <div class="arrow-up">↑</div>
+                            <div class="arrow-left">←</div>
+                            <div class="arrow-center">OK</div>
+                            <div class="arrow-right">→</div>
+                            <div class="arrow-down">↓</div>
+                        </div>
+                    </div>
+                    <p>Use as setas para navegar e ENTER para votar</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Loading overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p>Enviando voto...</p>
+    </div>
+
+    <!-- Vote confirmation -->
+    <div id="vote-confirmation" class="vote-confirmation hidden">
+        <div class="confirmation-content">
+            <h3>✓ Voto Confirmado!</h3>
+            <p>Obrigado por participar</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
