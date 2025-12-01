@@ -5,35 +5,51 @@ class TVPollApp {
         this.options = [];
         this.isVoting = false;
         this.updateInterval = null;
+        this.retryCount = 0;
+        this.maxRetries = 5;
+        this.audioContext = null;
+        
+        // Store bound event handlers for proper cleanup
+        this.boundHandleKeyPress = (e) => this.handleKeyPress(e);
+        this.boundPreventScroll = (e) => {
+            if(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
+                e.preventDefault();
+            }
+        };
         
         this.init();
     }
     
     init() {
         console.log('🚀 Iniciando TV 3.0 Poll App');
+        this.initAudioContext();
         this.setupEventListeners();
         this.loadPollData();
         this.startAutoUpdate();
         this.updateStatus('connected', '✅ Conectado ao servidor');
+        
+        // Focus on body for keyboard navigation
+        document.body.focus();
+    }
+    
+    initAudioContext() {
+        // Create a single AudioContext instance to avoid resource leaks
+        if ('AudioContext' in window || 'webkitAudioContext' in window) {
+            try {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                this.audioContext = new AudioContextClass();
+            } catch (e) {
+                console.warn('AudioContext not available:', e);
+            }
+        }
     }
     
     setupEventListeners() {
         // Navegação por teclado
-        document.addEventListener('keydown', (e) => {
-            this.handleKeyPress(e);
-        });
+        document.addEventListener('keydown', this.boundHandleKeyPress);
         
         // Prevenir scroll da página com setas
-        document.addEventListener('keydown', (e) => {
-            if(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
-                e.preventDefault();
-            }
-        });
-        
-        // Focus no documento para capturar teclas
-        document.addEventListener('DOMContentLoaded', () => {
-            document.body.focus();
-        });
+        document.addEventListener('keydown', this.boundPreventScroll);
         
         // Detectar se a janela perdeu o foco e reconectar
         document.addEventListener('visibilitychange', () => {
@@ -71,6 +87,7 @@ class TVPollApp {
     }
     
     navigateUp() {
+        if (!this.options.length) return;
         this.currentOptionIndex = this.currentOptionIndex > 0 
             ? this.currentOptionIndex - 1 
             : this.options.length - 1;
@@ -79,6 +96,7 @@ class TVPollApp {
     }
     
     navigateDown() {
+        if (!this.options.length) return;
         this.currentOptionIndex = this.currentOptionIndex < this.options.length - 1 
             ? this.currentOptionIndex + 1 
             : 0;
@@ -87,6 +105,8 @@ class TVPollApp {
     }
     
     updateActiveOption() {
+        if (!this.options.length) return;
+        
         // Remove active class de todas as opções
         document.querySelectorAll('.option').forEach(option => {
             option.classList.remove('active');
@@ -152,6 +172,7 @@ class TVPollApp {
             
             this.pollData = await response.json();
             this.options = this.pollData.opcoes;
+            this.retryCount = 0; // Reset retry count on success
             
             this.renderPoll();
             this.updateResults();
@@ -161,10 +182,17 @@ class TVPollApp {
             console.error('Erro ao carregar dados:', error);
             this.updateStatus('error', '❌ Erro de conexão');
             
-            // Retry após 5 segundos em caso de erro
-            setTimeout(() => {
-                this.loadPollData();
-            }, 5000);
+            // Retry with exponential backoff and max retries
+            if (this.retryCount < this.maxRetries) {
+                this.retryCount++;
+                const delay = Math.min(5000 * Math.pow(2, this.retryCount - 1), 30000);
+                setTimeout(() => {
+                    this.loadPollData();
+                }, delay);
+            } else {
+                console.error('Max retries reached. Stopping automatic reconnection.');
+                this.updateStatus('error', '❌ Falha na conexão. Recarregue a página.');
+            }
         }
     }
     
@@ -177,6 +205,7 @@ class TVPollApp {
         }
         
         if (optionsContainer && this.options.length > 0) {
+            // Clear container and remove old event listeners by replacing innerHTML
             optionsContainer.innerHTML = '';
             
             this.options.forEach((option, index) => {
@@ -185,15 +214,23 @@ class TVPollApp {
                 optionElement.setAttribute('data-option-id', option.id);
                 optionElement.textContent = option.texto;
                 
-                // Adiciona event listener para clique (suporte a mouse/touch)
-                optionElement.addEventListener('click', () => {
-                    this.currentOptionIndex = index;
-                    this.updateActiveOption();
-                    this.vote();
-                });
-                
                 optionsContainer.appendChild(optionElement);
             });
+            
+            // Use event delegation on container instead of individual listeners
+            // Remove old listener and add new one
+            optionsContainer.onclick = (e) => {
+                const optionElement = e.target.closest('.option');
+                if (optionElement) {
+                    const optionId = parseInt(optionElement.getAttribute('data-option-id'));
+                    const index = this.options.findIndex(opt => opt.id === optionId);
+                    if (index !== -1) {
+                        this.currentOptionIndex = index;
+                        this.updateActiveOption();
+                        this.vote();
+                    }
+                }
+            };
             
             // Define a primeira opção como ativa por padrão
             if (this.currentOptionIndex >= this.options.length) {
@@ -218,16 +255,41 @@ class TVPollApp {
             
             const resultItem = document.createElement('div');
             resultItem.className = 'result-item';
-            resultItem.innerHTML = `
-                <div class="result-header">
-                    <span class="result-text">${option.texto}</span>
-                    <span class="result-votes">${option.votos} voto${option.votos !== 1 ? 's' : ''}</span>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: ${percentage}%"></div>
-                </div>
-                <div class="result-percentage">${percentage}%</div>
-            `;
+            
+            // Build result header using textContent to prevent XSS
+            const resultHeader = document.createElement('div');
+            resultHeader.className = 'result-header';
+            
+            const resultText = document.createElement('span');
+            resultText.className = 'result-text';
+            resultText.textContent = option.texto;
+            
+            const resultVotes = document.createElement('span');
+            resultVotes.className = 'result-votes';
+            resultVotes.textContent = `${option.votos} voto${option.votos !== 1 ? 's' : ''}`;
+            
+            resultHeader.appendChild(resultText);
+            resultHeader.appendChild(resultVotes);
+            
+            // Build progress bar
+            const progressBar = document.createElement('div');
+            progressBar.className = 'progress-bar';
+            
+            const progressFill = document.createElement('div');
+            progressFill.className = 'progress-fill';
+            progressFill.style.width = `${percentage}%`;
+            
+            progressBar.appendChild(progressFill);
+            
+            // Build result percentage
+            const resultPercentage = document.createElement('div');
+            resultPercentage.className = 'result-percentage';
+            resultPercentage.textContent = `${percentage}%`;
+            
+            // Append all to resultItem
+            resultItem.appendChild(resultHeader);
+            resultItem.appendChild(progressBar);
+            resultItem.appendChild(resultPercentage);
             
             resultsContainer.appendChild(resultItem);
         });
@@ -296,23 +358,21 @@ class TVPollApp {
     }
     
     playNavigationSound() {
-        // Simula som de navegação (pode ser substituído por áudio real)
-        if ('AudioContext' in window || 'webkitAudioContext' in window) {
+        // Reuse existing AudioContext to avoid resource leaks
+        if (this.audioContext) {
             try {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                const audioContext = new AudioContext();
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
                 
                 oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
+                gainNode.connect(this.audioContext.destination);
                 
-                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                oscillator.frequency.setValueAtTime(800, this.audioContext.currentTime);
+                gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.1);
                 
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.1);
+                oscillator.start(this.audioContext.currentTime);
+                oscillator.stop(this.audioContext.currentTime + 0.1);
             } catch (e) {
                 // Ignora erros de áudio
             }
@@ -320,24 +380,22 @@ class TVPollApp {
     }
     
     playVoteSound() {
-        // Simula som de confirmação de voto
-        if ('AudioContext' in window || 'webkitAudioContext' in window) {
+        // Reuse existing AudioContext to avoid resource leaks
+        if (this.audioContext) {
             try {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                const audioContext = new AudioContext();
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
                 
                 oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
+                gainNode.connect(this.audioContext.destination);
                 
-                oscillator.frequency.setValueAtTime(1000, audioContext.currentTime);
-                oscillator.frequency.setValueAtTime(1200, audioContext.currentTime + 0.1);
-                gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                oscillator.frequency.setValueAtTime(1000, this.audioContext.currentTime);
+                oscillator.frequency.setValueAtTime(1200, this.audioContext.currentTime + 0.1);
+                gainNode.gain.setValueAtTime(0.2, this.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.3);
                 
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.3);
+                oscillator.start(this.audioContext.currentTime);
+                oscillator.stop(this.audioContext.currentTime + 0.3);
             } catch (e) {
                 // Ignora erros de áudio
             }
@@ -347,7 +405,11 @@ class TVPollApp {
     // Método para cleanup quando a aplicação for fechada
     destroy() {
         this.stopAutoUpdate();
-        document.removeEventListener('keydown', this.handleKeyPress);
+        document.removeEventListener('keydown', this.boundHandleKeyPress);
+        document.removeEventListener('keydown', this.boundPreventScroll);
+        if (this.audioContext) {
+            this.audioContext.close().catch(() => {});
+        }
     }
 }
 

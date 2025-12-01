@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
@@ -14,33 +14,44 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 // Path to votes file
 const votosPath = path.join(__dirname, 'votos.json');
 
+// Get default initial votes structure
+function getInitialVotes() {
+    return {
+        pergunta: "Qual é o seu programa favorito na TV?",
+        opcoes: [
+            { id: 1, texto: "Documentários", votos: 0 },
+            { id: 2, texto: "Filmes de Ação", votos: 0 },
+            { id: 3, texto: "Séries de Drama", votos: 0 },
+            { id: 4, texto: "Programas de Culinária", votos: 0 },
+            { id: 5, texto: "Esportes", votos: 0 }
+        ],
+        totalVotos: 0
+    };
+}
+
 // Initialize votes file if it doesn't exist
 function initializeVotes() {
     if (!fs.existsSync(votosPath)) {
-        const initialVotes = {
-            pergunta: "Qual é o seu programa favorito na TV?",
-            opcoes: [
-                { id: 1, texto: "Documentários", votos: 0 },
-                { id: 2, texto: "Filmes de Ação", votos: 0 },
-                { id: 3, texto: "Séries de Drama", votos: 0 },
-                { id: 4, texto: "Programas de Culinária", votos: 0 },
-                { id: 5, texto: "Esportes", votos: 0 }
-            ],
-            totalVotos: 0
-        };
+        const initialVotes = getInitialVotes();
         fs.writeFileSync(votosPath, JSON.stringify(initialVotes, null, 2));
     }
 }
 
-// Read votes from file
-function readVotes() {
+// Read votes from file with retry limit to prevent infinite recursion
+function readVotes(retries = 0) {
+    const MAX_RETRIES = 1;
     try {
         const data = fs.readFileSync(votosPath, 'utf8');
         return JSON.parse(data);
     } catch (error) {
         console.error('Erro ao ler votos:', error);
-        initializeVotes();
-        return readVotes();
+        if (retries < MAX_RETRIES) {
+            initializeVotes();
+            return readVotes(retries + 1);
+        } else {
+            console.error('Falha persistente ao ler votos. Retornando valor padrão.');
+            return getInitialVotes();
+        }
     }
 }
 
@@ -72,7 +83,7 @@ app.post('/votar', (req, res) => {
     try {
         const { opcaoId } = req.body;
         
-        if (!opcaoId || typeof opcaoId !== 'number') {
+        if (opcaoId === undefined || opcaoId === null || typeof opcaoId !== 'number') {
             return res.status(400).json({ erro: 'ID da opção é obrigatório e deve ser um número' });
         }
 

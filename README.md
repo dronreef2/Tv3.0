@@ -18,7 +18,7 @@ O TV 3.0 é um sistema completo de enquete interativa desenvolvido especificamen
 ## 🚀 Como Executar
 
 ### Pré-requisitos
-- Node.js (versão 14 ou superior)
+- Node.js (versão 18 ou superior)
 - npm
 
 ### Instalação e Execução
