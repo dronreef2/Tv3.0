@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TV 3.0 - Enquete Interativa</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="tv-header">
+        <h1 class="tv-title">📺 TV 3.0 - Enquete Interativa</h1>
+        <div class="tv-status">
+            <span id="status-conexao">🟢 Conectado</span>
+            <span id="total-votos">Total: 0 votos</span>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="tv-main">
+        <!-- Question Section -->
+        <section class="pergunta-section">
+            <h2 id="pergunta-titulo" class="pergunta-titulo">
+                Carregando pergunta...
+            </h2>
+        </section>
+
+        <!-- Voting Options -->
+        <section class="opcoes-section">
+            <h3 class="secao-titulo">Use as setas ↑↓ e ENTER para votar:</h3>
+            <div id="opcoes-container" class="opcoes-container">
+                <!-- Options will be populated by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section class="resultados-section">
+            <h3 class="secao-titulo">Resultados em Tempo Real:</h3>
+            <div id="resultados-container" class="resultados-container">
+                <!-- Results will be populated by JavaScript -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Instructions -->
+    <footer class="tv-footer">
+        <div class="instrucoes">
+            <div class="instrucao-item">
+                <span class="tecla">↑↓</span>
+                <span class="descricao">Navegar</span>
+            </div>
+            <div class="instrucao-item">
+                <span class="tecla">ENTER</span>
+                <span class="descricao">Votar</span>
+            </div>
+            <div class="instrucao-item">
+                <span class="tecla">R</span>
+                <span class="descricao">Atualizar</span>
+            </div>
+        </div>
+        <div class="ultima-atualizacao">
+            Última atualização: <span id="ultima-atualizacao">--</span>
+        </div>
+    </footer>
+
+    <!-- Loading indicator -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Carregando...</div>
+    </div>
+
+    <!-- Success message -->
+    <div id="voto-sucesso" class="voto-sucesso hidden">
+        <div class="sucesso-content">
+            <div class="sucesso-icon">✅</div>
+            <div class="sucesso-text">Voto registrado com sucesso!</div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
